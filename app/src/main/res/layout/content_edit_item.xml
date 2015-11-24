@@ -16,19 +16,21 @@
         android:text="@string/save"
         android:id="@+id/saveItemBtn"
         android:onClick="onSubmit"
-        android:layout_centerVertical="true"
-        android:layout_alignLeft="@+id/editItem"
-        android:layout_alignStart="@+id/editItem" />
+        android:layout_marginBottom="113dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/textView2"
+        android:layout_toEndOf="@+id/textView2" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textMultiLine"
         android:ems="10"
-        android:id="@+id/editItem"
-        android:layout_marginTop="107dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:id="@+id/editTaskName"
+        android:layout_marginTop="57dp"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -36,9 +38,39 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/editVal"
         android:id="@+id/textView"
+        android:layout_marginTop="41dp"
         android:layout_alignParentTop="true"
-        android:layout_alignLeft="@+id/editItem"
-        android:layout_alignStart="@+id/editItem"
-        android:layout_marginTop="39dp" />
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/editTaskNameTextView"
+        android:id="@+id/textView2"
+        android:layout_alignTop="@+id/editTaskName"
+        android:layout_toLeftOf="@+id/editTaskName"
+        android:layout_toStartOf="@+id/editTaskName"
+        android:layout_alignBottom="@+id/editTaskName" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/editTaskPriorityTextView"
+        android:id="@+id/editTaskPriorityTextView"
+        android:layout_below="@+id/textView2"
+        android:layout_alignLeft="@+id/textView2"
+        android:layout_alignStart="@+id/textView2"
+        android:layout_marginTop="25dp" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/prioritySpinner"
+        android:layout_alignTop="@+id/editTaskPriorityTextView"
+        android:layout_alignLeft="@+id/editTaskName"
+        android:layout_alignStart="@+id/editTaskName"
+        android:spinnerMode="dropdown" />
 
 </RelativeLayout>

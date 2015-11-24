@@ -4,6 +4,8 @@
     <string name="title_activity_edit_item">EditItemActivity</string>
     <string name="add">Add</string>
     <string name="addHint">Add a New Item</string>
-    <string name="editVal">Edit Value Below:</string>
+    <string name="editVal">Edit Task Properties</string>
     <string name="save">SAVE</string>
+    <string name="editTaskNameTextView">Task Name:</string>
+    <string name="editTaskPriorityTextView">Priority:</string>
 </resources>

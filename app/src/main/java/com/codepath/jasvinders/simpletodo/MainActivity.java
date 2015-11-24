@@ -10,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.apache.commons.io.FileUtils;
@@ -17,10 +18,13 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    ArrayList<String> items;
-    ArrayAdapter<String> itemsAdaptor;
+    private String todoFileName = "todoTasks.json";
+    ArrayList<ToDoTask> tasks;
+    CustomTaskAdaptor tasksAdaptor;
     ListView lvItems;
     private final int REQUEST_CODE = 22;
 
@@ -29,17 +33,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         lvItems = (ListView) findViewById(R.id.lvItems);
-        items = new ArrayList<>();
+        tasks = new ArrayList<>();
         readItems();
-        itemsAdaptor = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-        lvItems.setAdapter(itemsAdaptor);
+        Collections.sort(tasks, new ToDoTask());
+        tasksAdaptor = new CustomTaskAdaptor(this, tasks);
+        lvItems.setAdapter(tasksAdaptor);
         setupListViewListener();
         setupEditClickListener();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // Inflate the menu; this adds tasks to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -62,7 +67,9 @@ public class MainActivity extends AppCompatActivity {
     public void onAddItem(View v) {
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
         String itemText = etNewItem.getText().toString();
-        itemsAdaptor.add(itemText);
+        tasks.add(new ToDoTask(itemText, ToDoTask.priorities[0]));
+        Collections.sort(tasks, new ToDoTask());
+        tasksAdaptor.notifyDataSetChanged();
         etNewItem.setText("");
         writeItems();
     }
@@ -71,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
         lvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                items.remove(position);
-                itemsAdaptor.notifyDataSetChanged();
+                tasks.remove(position);
+                tasksAdaptor.notifyDataSetChanged();
                 writeItems();
                 return true;
             }
@@ -83,10 +90,12 @@ public class MainActivity extends AppCompatActivity {
        lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
            @Override
            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-               String value = (String) parent.getItemAtPosition(position);
+               ToDoTask value = (ToDoTask) parent.getItemAtPosition(position);
+               Toast.makeText(getApplicationContext(), value.toString(), Toast.LENGTH_SHORT).show();
                Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
                intent.putExtra("taskPosition", position);
-               intent.putExtra("taskName", value);
+               intent.putExtra("taskDesc", value.desc);
+               intent.putExtra("taskPriority", value.priority);
                startActivityForResult(intent, REQUEST_CODE);
            }
        });
@@ -95,29 +104,37 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int reqCode, int resCode, Intent data) {
         if (resCode == RESULT_OK && reqCode == REQUEST_CODE) {
             String taskName = data.getExtras().getString("taskName");
+            String taskPriority = data.getExtras().getString("taskPriority");
             int position = data.getExtras().getInt("taskPosition");
-            items.set(position, taskName);
-            itemsAdaptor.notifyDataSetChanged();
+            tasks.set(position, new ToDoTask(taskName, taskPriority));
+            Collections.sort(tasks, new ToDoTask());
+            tasksAdaptor.notifyDataSetChanged();
             writeItems();
-            Toast.makeText(this, taskName, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), taskName + " edited", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void readItems() {
         File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
+        File todoFile = new File(filesDir, todoFileName);
         try {
-            items = new ArrayList<String>(FileUtils.readLines(todoFile));
+            tasks = new ArrayList<ToDoTask>();
+            List<String> lines = FileUtils.readLines(todoFile);
+            for (String line : lines)
+                tasks.add(new ToDoTask(line));
         } catch (IOException e) {
-            items = new ArrayList<String>();
+            tasks = new ArrayList<ToDoTask>();
         }
     }
 
     private void writeItems() {
         File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
+        File todoFile = new File(filesDir, todoFileName);
         try {
-            FileUtils.writeLines(todoFile, items);
+            List<String> lines = new ArrayList<>();
+            for (ToDoTask task : tasks)
+                lines.add(task.toJson());
+            FileUtils.writeLines(todoFile, lines);
         } catch (IOException e) {
             e.printStackTrace();
         }
